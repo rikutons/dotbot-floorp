@@ -97,16 +97,20 @@ class Firefox(dotbot.plugin.Plugin):  # type: ignore[misc]
         success: bool = True
 
         if "user.js" in data:
-            success &= self._handle_user_js(data["user.js"])
+            success &= self._handle("user.js", data["user.js"])
+
+        if "chrome" in data:
+            success &= self._handle("chrome", data["chrome"])
 
         return success
 
-    def _handle_user_js(self, value: typing.Any) -> bool:
-        """Create links to a specified ``user.js`` in each Firefox profile directory."""
+    def _handle(self, key: str, value: typing.Any) -> bool:
+        """Create links to a specified key in each Firefox profile directory."""
 
         link_plugin = dotbot.plugins.link.Link(self._context)
         links: dict[str, typing.Any] = {
-            str(profile / "user.js"): value for profile in _get_profile_directories()
+            str(profile / key): value
+            for profile in _get_profile_directories()
         }
 
         if not links:

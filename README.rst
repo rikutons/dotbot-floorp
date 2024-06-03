@@ -132,6 +132,7 @@ For example, it could contain this configuration to set your homepage:
 
 Then, add a ``firefox`` directive to your dotbot config with a ``user.js`` key.
 The value of the key follows the syntax of the `dotbot Link plugin`_.
+Now you can create a link for ``chrome`` directory as well.
 
 ..  code-block:: yaml
 
