@@ -63,7 +63,8 @@ def _get_profile_directories() -> typing.Iterable[pathlib.Path]:
             continue
 
         for profile in path.glob("*"):
-            if profile.is_dir() and (profile / "prefs.js").is_file():
+            if profile.is_dir() and not "backup" in str(profile) and (
+                    profile / "prefs.js").is_file():
                 yield profile
 
 
