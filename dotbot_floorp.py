@@ -1,4 +1,4 @@
-# dotbot-firefox -- Configure your Firefox profile(s) using dotbot.
+# dotbot-floorp -- Configure your Floorp profile(s) using dotbot.
 # Copyright 2022-2024 Kurt McKee <contactme@kurtmckee.org>
 # SPDX-License-Identifier: MIT
 
@@ -16,46 +16,46 @@ import dotbot.plugins.link
 
 __version__ = "1.1.0"
 
-VALID_DIRECTIVES: set[str] = {"firefox"}
+VALID_DIRECTIVES: set[str] = {"floorp"}
 
 log = logging.getLogger(__name__)
 
 
 def _get_profile_directories() -> typing.Iterable[pathlib.Path]:
-    """Yield Firefox profile directories that appear to be valid."""
+    """Yield Floorp profile directories that appear to be valid."""
 
     defaults: list[str] = []
 
     if sys.platform.startswith("win32"):  # Windows
-        defaults.append("${APPDATA}/Mozilla/Firefox/Profiles")
+        defaults.append("${APPDATA}/Floorp/Profiles")
     elif sys.platform.startswith("darwin"):  # MacOS
-        defaults.append("~/Library/Application Support/Firefox/Profiles")
+        defaults.append("~/Library/Application Support/Floorp/Profiles")
     else:
-        defaults.append("~/.mozilla/firefox")
+        defaults.append("~/.mozilla/floorp")
 
-        # When Firefox is installed and run as a snap,
+        # When Floorp is installed and run as a snap,
         # it stores its profile info under $SNAP_USER_COMMON.
         #
         # It might be more correct to introspect $SNAP_USER_COMMON,
         # in case it's been customized, using a command like:
         #
-        #     snap run --shell firefox -c 'echo $SNAP_USER_COMMON'
+        #     snap run --shell floorp -c 'echo $SNAP_USER_COMMON'
         #
         # ...but that seems unnecessary, and may be fragile and insecure.
         #
-        snap_user_common = "~/snap/firefox/common"
-        defaults.append(f"{snap_user_common}/.mozilla/firefox")
+        snap_user_common = "~/snap/floorp/common"
+        defaults.append(f"{snap_user_common}/.mozilla/floorp")
 
-        # When Firefox is installed and run as a flatpak,
+        # When Floorp is installed and run as a flatpak,
         # it stores its profile info under this directory:
         #
-        #     $HOME/.var/app/org.mozilla.firefox
+        #     $HOME/.var/app/org.mozilla.floorp
         #
         # $HOME can be customized inside the flatpak sandbox environment,
         # but it seems unlikely that this level of customization will be needed.
         #
-        flatpak_home = "~/.var/app/org.mozilla.firefox"
-        defaults.append(f"{flatpak_home}/.mozilla/firefox")
+        flatpak_home = "~/.var/app/org.mozilla.floorp"
+        defaults.append(f"{flatpak_home}/.mozilla/floorp")
 
     for default in defaults:
         path = pathlib.Path(os.path.expandvars(os.path.expanduser(default)))
@@ -68,13 +68,13 @@ def _get_profile_directories() -> typing.Iterable[pathlib.Path]:
                 yield profile
 
 
-# mypy 1.3.0 reports the following error for the Firefox class:
+# mypy 1.3.0 reports the following error for the Floorp class:
 #
 #   Class cannot subclass "Plugin" (has type "Any")  [misc]
 #
 # The "type: ignore[misc]" comment below suppresses this specific error.
 #
-class Firefox(dotbot.plugin.Plugin):  # type: ignore[misc]
+class Floorp(dotbot.plugin.Plugin):  # type: ignore[misc]
     def can_handle(self, directive: str) -> bool:
         """
         Flag whether this plugin supports the given *directive*.
@@ -84,14 +84,14 @@ class Firefox(dotbot.plugin.Plugin):  # type: ignore[misc]
 
     def handle(self, directive: str, data: dict[str, typing.Any]) -> bool:
         """
-        Handle Firefox configuration directives.
+        Handle Floorp configuration directives.
 
         :raises ValueError:
             ValueError is raised if `handle()` is called with an unsupported directive.
         """
 
         if not self.can_handle(directive):
-            message = f"The Firefox plugin does not handle the '{directive}' directive."
+            message = f"The Floorp plugin does not handle the '{directive}' directive."
             raise ValueError(message)
 
         success: bool = True
@@ -105,7 +105,7 @@ class Firefox(dotbot.plugin.Plugin):  # type: ignore[misc]
         return success
 
     def _handle(self, key: str, value: typing.Any) -> bool:
-        """Create links to a specified key in each Firefox profile directory."""
+        """Create links to a specified key in each Floorp profile directory."""
 
         link_plugin = dotbot.plugins.link.Link(self._context)
         links: dict[str, typing.Any] = {
@@ -114,7 +114,7 @@ class Firefox(dotbot.plugin.Plugin):  # type: ignore[misc]
         }
 
         if not links:
-            log.warning("No Firefox profiles found")
+            log.warning("No Floorp profiles found")
             return True
 
         return bool(link_plugin.handle("link", links))

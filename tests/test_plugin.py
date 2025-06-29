@@ -1,4 +1,4 @@
-# dotbot-firefox -- Configure your Firefox profile(s) using dotbot.
+# dotbot-floorp -- Configure your Floorp profile(s) using dotbot.
 # Copyright 2022-2024 Kurt McKee <contactme@kurtmckee.org>
 # SPDX-License-Identifier: MIT
 
@@ -16,17 +16,17 @@ if sys.version_info >= (3, 11):
 else:
     import tomli as tomllib
 
-import dotbot_firefox
+import dotbot_floorp
 
 
 @pytest.fixture(
     ids=("windows", "mac", "linux", "linux-snap", "linux-flatpak"),
     params=(
-        ("win32", "/adrift/win32/appdata/Mozilla/Firefox/Profiles/bogus"),
-        ("darwin", "/adrift/darwin/Library/Application Support/Firefox/Profiles/bogus"),
-        ("linux", "/adrift/linux/.mozilla/firefox/bogus"),
-        ("linux", "/adrift/linux/snap/firefox/common/.mozilla/firefox/bogus"),
-        ("linux", "/adrift/linux/.var/app/org.mozilla.firefox/.mozilla/firefox/bogus"),
+        ("win32", "/adrift/win32/appdata/Mozilla/Floorp/Profiles/bogus"),
+        ("darwin", "/adrift/darwin/Library/Application Support/Floorp/Profiles/bogus"),
+        ("linux", "/adrift/linux/.mozilla/floorp/bogus"),
+        ("linux", "/adrift/linux/snap/floorp/common/.mozilla/floorp/bogus"),
+        ("linux", "/adrift/linux/.var/app/org.mozilla.floorp/.mozilla/floorp/bogus"),
     ),
 )
 def get_profile(request, fs, monkeypatch):
@@ -47,7 +47,7 @@ def get_profile(request, fs, monkeypatch):
             fs.create_file(f"{path}/prefs.js")
         return path.replace("/", os.path.sep)
 
-    with unittest.mock.patch("dotbot_firefox.sys.platform", platform):
+    with unittest.mock.patch("dotbot_floorp.sys.platform", platform):
         yield get_path
 
 
@@ -57,7 +57,7 @@ def test_get_profile_directories(get_profile, status):
 
     expected = get_profile(status=status)
 
-    paths = [str(path) for path in dotbot_firefox._get_profile_directories()]
+    paths = [str(path) for path in dotbot_floorp._get_profile_directories()]
 
     if status == "is_valid":
         assert expected in paths
@@ -68,7 +68,7 @@ def test_get_profile_directories(get_profile, status):
 def test_directive_handling_mismatch():
     """Verify the plugin rejects unexpected directives."""
 
-    plugin = dotbot_firefox.Firefox(None)
+    plugin = dotbot_floorp.Floorp(None)
     assert plugin.can_handle("wrong-directive") is False
     with pytest.raises(ValueError):
         plugin.handle("wrong-directive", {})
@@ -79,39 +79,39 @@ def test_directive_handling_success(get_profile, link_success):
     """Verify the plugin incorporates the success code of the Link plugin."""
 
     target = os.path.join(get_profile(status="is_valid"), "user.js")
-    plugin = dotbot_firefox.Firefox(context=None)
+    plugin = dotbot_floorp.Floorp(context=None)
 
     link_mock = unittest.mock.MagicMock()
     link_mock.return_value = link_mock
     link_mock.handle.return_value = link_success
-    with unittest.mock.patch("dotbot_firefox.dotbot.plugins.link.Link", link_mock):
-        assert plugin.handle("firefox", {"user.js": "js-file"}) is link_success
+    with unittest.mock.patch("dotbot_floorp.dotbot.plugins.link.Link", link_mock):
+        assert plugin.handle("floorp", {"user.js": "js-file"}) is link_success
     assert link_mock.handle.call_count == 1
     assert link_mock.handle.call_args.args == ("link", {target: "js-file"})
 
 
 def test_logging_when_no_profiles_found(get_profile):
-    """Verify the plugin logs a warning when no Firefox profiles are found."""
+    """Verify the plugin logs a warning when no Floorp profiles are found."""
 
-    plugin = dotbot_firefox.Firefox(context=None)
+    plugin = dotbot_floorp.Floorp(context=None)
 
     log_mock = unittest.mock.Mock()
     link_mock = unittest.mock.MagicMock()
 
-    with unittest.mock.patch("dotbot_firefox.dotbot.plugins.link.Link", link_mock):
-        with unittest.mock.patch("dotbot_firefox.log", log_mock):
-            assert plugin.handle("firefox", {"user.js": "js-file"}) is True
+    with unittest.mock.patch("dotbot_floorp.dotbot.plugins.link.Link", link_mock):
+        with unittest.mock.patch("dotbot_floorp.log", log_mock):
+            assert plugin.handle("floorp", {"user.js": "js-file"}) is True
 
     assert link_mock.handle.call_count == 0, "The Link plugin should not have been used"
     assert log_mock.warning.call_count == 1
-    assert log_mock.warning.call_args.args == ("No Firefox profiles found",)
+    assert log_mock.warning.call_args.args == ("No Floorp profiles found",)
 
 
 def test_no_user_js_key(get_profile):
     """Test the plugin behavior when there is no "user.js" key in `data`."""
 
-    plugin = dotbot_firefox.Firefox(context=None)
-    assert plugin.handle("firefox", {}) is True
+    plugin = dotbot_floorp.Floorp(context=None)
+    assert plugin.handle("floorp", {}) is True
 
 
 def test_versions_match():
@@ -121,7 +121,7 @@ def test_versions_match():
         toml_version: str = tomllib.load(file)["tool"]["poetry"]["version"]
     assert toml_version != ""
 
-    with open("dotbot_firefox.py") as file:
+    with open("dotbot_floorp.py") as file:
         python = file.read()
     python_version = ""
     for line in python.splitlines():  # pragma: no branch
@@ -140,10 +140,10 @@ def test_exactly_one_class_inheriting_from_dotbot_plugin():
     subclass_quantity = len(
         [
             name
-            for name in dir(dotbot_firefox)
+            for name in dir(dotbot_floorp)
             if (
-                hasattr(getattr(dotbot_firefox, name), "__bases__")
-                and issubclass(getattr(dotbot_firefox, name), dotbot.plugin.Plugin)
+                hasattr(getattr(dotbot_floorp, name), "__bases__")
+                and issubclass(getattr(dotbot_floorp, name), dotbot.plugin.Plugin)
             )
         ]
     )
