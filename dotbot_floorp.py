@@ -31,7 +31,7 @@ def _get_profile_directories() -> typing.Iterable[pathlib.Path]:
     elif sys.platform.startswith("darwin"):  # MacOS
         defaults.append("~/Library/Application Support/Floorp/Profiles")
     else:
-        defaults.append("~/.mozilla/floorp")
+        defaults.append("~/./floorp")
 
         # When Floorp is installed and run as a snap,
         # it stores its profile info under $SNAP_USER_COMMON.
